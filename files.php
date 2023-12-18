@@ -5,20 +5,6 @@ if (!isset($_SESSION['auth'])) {
 }
 require 'connection.php';
 
-if(isset($_REQUEST['submit_btn'])){
-    if(($_REQUEST['share'] == "")){
-    }
-    else{
-        $file_id = $_POST['file_name']['id'];
-        $user_id = $_POST['share'];
-        // $categories_id = $_POST['categories_id'];
-         echo"<pre>";
-        print_r($user_id);
-        exit();
-
-    }
-
-}
 
 if (isset($_REQUEST['submit'])) {
     if (($_REQUEST['categories_id'] == "")) {
@@ -37,6 +23,8 @@ if (isset($_REQUEST['submit'])) {
         }
     }
 }
+
+
 
 $category = $database->getcategory();
 $getfile = $database->getCategoryfile();
@@ -127,71 +115,78 @@ $getAproolist = $database->getapprovallist();
 
             <!-- Modal -->
 
-            <form method="post" action="">
 
-                <div>
-                    <table class="table table-dark">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col"> category name</th>
-                                <th scope="col"> file_name </th>
-                                <th scope="col"> share</th>
+            <div>
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col"> category name</th>
+                            <th scope="col"> file_name </th>
+                            <th scope="col"> </th>
+                            <th scope="col"> share</th>
 
-                            </tr>
-                        </thead>
-                        <tbody id="container">
+                        </tr>
+                    </thead>
+                    <tbody id="container">
 
-                            <?php
+                        <?php
 
-                            $serialnumber = 1;
+                        $serialnumber = 1;
 
-                            foreach ($getfile as $row) {
-                                echo "<tr>";
-                                echo "<td>" . $serialnumber . "</td>";
-                                // echo "<td>" . $categories["id"] . "</td>";
-                                echo "<td>" . $row["categories_name"] . "</td>";
-                                echo "<td>" . $row["file_name"] . "</td>";
-                                echo "<td>
-                                <button type='button' class='btn btn-success share-btn' data-bs-toggle='modal' data-bs-target='#shareModal' data-categories-id='$row[categories_id]'>Shared</button>
-
+                        foreach ($getfile as $row)
+                        //     echo "<pre>";
+                        // print_r($row);
+                        // exit(); 
+                        {
+                            echo "<tr>";
+                            echo "<td>" . $serialnumber . "</td>";
+                            echo "<td>" . $row["categories_name"] . "</td>";
+                            echo "<td>" . $row["file_name"] . "</td>";
+                            echo "<td>";
+                            echo "<input type='hidden' name='share1' value='" . $row['id'] . "'>";
+                            echo "</td>";
+                            echo "<td>
+                            <button class='btn btn-success share-btn'><a href='random.php?id=".$row['id']."'>shared</a> </button>
                                 </td>";
-                                echo "<tr>";
-                                $serialnumber++;
-                            }
-                            ?>
-                        </tbody>
+                            echo "</tr>";
+                            $serialnumber++;
+                        }
 
-                    </table>
-                </div>
+                        ?>
+                    </tbody>
+
+                </table>
+            </div>
         </div>
         <!-- Modal 2-->
         <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Share File</h5>
-            </div>
-            <form action="share.php" method="post" id="share_files">
-
-                <div class="modal-body">
-                    <?php foreach ($getAproolist as $approvalItem) : ?>
-                        <div class="form-group">
-                            <label class="control-label">
-                                <b><?php echo $approvalItem['name']; ?></b>
-                            </label>
-                            <input type="checkbox" class="form-check-input" name="share[]" value="<?php echo $approvalItem['id']; ?>">
-                            <input type="hidden" value="<?php  ?>">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="share.php" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Share File</h5>
                         </div>
-                    <?php endforeach; ?>
+                        <div class="modal-body">
+                            <?php foreach ($getAproolist as $approvalItem) : ?>
+                                <div class="form-group">
+                                    <label class="control-label">
+                                        <b><?php echo $approvalItem['name']; ?></b>
+                                    </label>
+                                    <input type="checkbox" class="form-check-input" name="share[]" value="<?php echo $approvalItem['id']; ?>">
+                                    <?php foreach($getfile as $row) ?>
+                                    <input type="text" name="share2" value="<?php echo $row['id']; ?>">
+                               
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" name="submit_btn" class="btn btn-sm btn-primary">Submit</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                    <input type="submit" name="submit_btn" id="submit_btn" class="btn btn-sm btn-primary">
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
     </main>
     <!--   Core JS Files   -->
     <?php
@@ -210,22 +205,17 @@ $getAproolist = $database->getapprovallist();
     ?>
 
     <script>
-        $(document).ready(function() {
-            $("#share_files").submit(function(e) {
-                e.preventDefault();
-                $.ajax({
-                    type: 'post',
-                    url: 'share.php',
-                    success : function(response){
 
-                    }
-                })
-            })
-        })
+
+
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 </body>
 
 </html>

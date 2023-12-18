@@ -9,9 +9,12 @@ if (isset($_REQUEST['submit'])) {
         echo "all fields filled";
     } else {
         $database = new database();
+        
         $result = $database->newlogin($_POST);
+
         if ($result) {
-            header("location:logged_page.php");
+            $_SESSION["auth-user"]=$result;
+            header("location:dashboard2.php");
         } else {
             echo "Failed to registration";
         }

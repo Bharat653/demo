@@ -66,7 +66,7 @@ class database
 
     function getCategoryfile()
     {
-        $query = $this->db->prepare("select  categories_id,file_name,categories_name from file inner join category on file.categories_id = category.id ");
+        $query = $this->db->prepare("select  categories_id,file_name,categories_name,file.id from file inner join category on file.categories_id = category.id ");
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -109,11 +109,7 @@ class database
         $query = $this->db->prepare("select * from user_login where email = ? and password = ?");
         $query->execute([$data['email'], $data['password']]);
 
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
-        if (count($result) > 0) {
-            return $result;
-        }
-        return 0;
+       return $result = $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
     function approvalfilter($data)
@@ -165,10 +161,17 @@ class database
     }
 
     function sharedata($data){
+        // $file_id = $_POST['give2'];
+        // $user_id = $_POST['give'];
         
-        $query = $this->db->prepare("insert into share (file_id,user_id) values (?,?)");
+        $query = $this->db->prepare("insert into share (file_id,user_id) values (:file_id,:user_id)");
         $query->execute($data);
         
+    }
+    function getsharedata($data){
+        $query = $this->db->prepare("select file_id,file_name,user_id from share inner join file on file.id = share.file_id where share.user_id=:user_id");
+        $query->execute($data);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 $database = new Database();
